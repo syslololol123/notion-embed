@@ -1,77 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Countdown</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #222;
-      color: #fff;
-      padding: 20px;
-      max-width: 350px;
-    }
-    #progress-container {
-      background: #444;
-      border-radius: 5px;
-      height: 20px;
-      width: 100%;
-      margin-top: 8px;
-      overflow: hidden;
-    }
-    #progress-bar {
-      background: #0f0;
-      height: 100%;
-      width: 0%;
-      border-radius: 5px;
-      transition: width 0.5s ease;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Countdown</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: #1e1e1e;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    max-width: 400px;
+    margin: auto;
+  }
+
+  #time-left {
+    display: flex;
+    gap: 20px;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+
+  .time-segment {
+    text-align: center;
+  }
+
+  .time-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0f0;
+  }
+
+  .time-label {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  #progress-container {
+    background: #333;
+    border-radius: 12px;
+    width: 100%;
+    height: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 10px #000 inset;
+  }
+
+  #progress-bar {
+    background: linear-gradient(90deg, #0f0, #0a0);
+    height: 100%;
+    width: 0%;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 8px #0f0;
+  }
+
+  #progress-text {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: #0f0;
+    text-align: center;
+  }
+</style>
 </head>
 <body>
 
-  <div id="time-left" style="font-size: 1rem; line-height: 1.4;"></div>
-
-  <div id="progress-container">
-    <div id="progress-bar"></div>
+<div id="time-left">
+  <div class="time-segment">
+    <div id="days" class="time-value">0</div>
+    <div class="time-label">Days</div>
   </div>
+  <div class="time-segment">
+    <div id="hours" class="time-value">0</div>
+    <div class="time-label">Hours</div>
+  </div>
+  <div class="time-segment">
+    <div id="minutes" class="time-value">0</div>
+    <div class="time-label">Minutes</div>
+  </div>
+  <div class="time-segment">
+    <div id="seconds" class="time-value">0</div>
+    <div class="time-label">Seconds</div>
+  </div>
+</div>
 
-  <div id="progress-text" style="margin-top: 8px; font-size: 0.95rem;"></div>
+<div id="progress-container">
+  <div id="progress-bar"></div>
+</div>
+<div id="progress-text">0% Complete</div>
 
-  <script>
-    // START + END (Eastern Time)
-    const startTime = new Date("2025-11-25T00:00:00-05:00");
-    const endTime   = new Date("2026-08-01T00:00:00-05:00");
+<script>
+const startTime = new Date("2025-11-25T00:00:00-05:00");
+const endTime   = new Date("2026-08-03T00:00:00-05:00");
 
-    function updateCountdown() {
-      const now = new Date();
-      let diffMs = endTime - now;
-      if (diffMs < 0) diffMs = 0;
+function updateCountdown() {
+  const now = new Date();
+  let diffMs = endTime - now;
+  if (diffMs < 0) diffMs = 0;
 
-      const dayMs = 1000 * 60 * 60 * 24;
-      const hourMs = 1000 * 60 * 60;
-      const minuteMs = 1000 * 60;
-      const secondMs = 1000;
+  const dayMs = 1000 * 60 * 60 * 24;
+  const hourMs = 1000 * 60 * 60;
+  const minuteMs = 1000 * 60;
+  const secondMs = 1000;
 
-      const days = Math.floor(diffMs / dayMs); diffMs -= days * dayMs;
-      const hours = Math.floor(diffMs / hourMs); diffMs -= hours * hourMs;
-      const minutes = Math.floor(diffMs / minuteMs); diffMs -= minutes * minuteMs;
-      const seconds = Math.floor(diffMs / secondMs);
+  const days = Math.floor(diffMs / dayMs); diffMs -= days * dayMs;
+  const hours = Math.floor(diffMs / hourMs); diffMs -= hours * hourMs;
+  const minutes = Math.floor(diffMs / minuteMs); diffMs -= minutes * minuteMs;
+  const seconds = Math.floor(diffMs / secondMs);
 
-      document.getElementById("time-left").textContent =
-        `Days: ${days}, Hours: ${hours}, Minutes: ${minutes}, Seconds: ${seconds}`;
+  document.getElementById('days').textContent = days;
+  document.getElementById('hours').textContent = hours;
+  document.getElementById('minutes').textContent = minutes;
+  document.getElementById('seconds').textContent = seconds;
 
-      const totalMs = endTime - startTime;
-      const elapsedMs = now - startTime;
-      const progressPercent = Math.min(Math.max((elapsedMs / totalMs) * 100, 0), 100);
+  const totalMs = endTime - startTime;
+  const elapsedMs = now - startTime;
+  const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
 
-      document.getElementById("progress-bar").style.width = `${progressPercent}%`;
-      document.getElementById("progress-text").textContent = `${progressPercent.toFixed(2)}% Complete`;
-    }
+  document.getElementById("progress-bar").style.width = `${progressPercent}%`;
+  document.getElementById("progress-text").textContent = `${progressPercent.toFixed(2)}% Complete`;
+}
 
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-  </script>
+updateCountdown();
+setInterval(updateCountdown, 1000);
+</script>
 
 </body>
 </html>
