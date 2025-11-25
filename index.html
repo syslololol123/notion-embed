@@ -39,14 +39,14 @@
   <div id="progress-text" style="margin-top: 8px; font-size: 0.95rem;"></div>
 
   <script>
-    // FIXED TIMESTAMPS IN EASTERN TIME
-    const startTime = new Date("2025-11-25T09:10:00-05:00");
-    const endTime   = new Date("2025-11-25T09:40:00-05:00");
+    // FIXED 1-YEAR PLAN START + END (EASTERN TIME)
+    const startTime = new Date("2025-11-25T00:00:00-05:00");
+    const endTime   = new Date("2026-08-03T00:00:00-05:00");
 
     function breakdownTime(ms) {
       let seconds = Math.floor(ms / 1000);
 
-      const months = Math.floor(seconds / (30 * 24 * 3600)); // approx months
+      const months = Math.floor(seconds / (30 * 24 * 3600)); // approximate month = 30 days
       seconds -= months * 30 * 24 * 3600;
 
       const weeks = Math.floor(seconds / (7 * 24 * 3600));
@@ -69,12 +69,10 @@
 
       const totalMillis = endTime - startTime;
       const elapsedMillis = now - startTime;
-      const millisLeft = Math.max(endTime - now, 0); // prevent negatives
+      const millisLeft = Math.max(endTime - now, 0);
 
-      // % filled
       const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
 
-      // Break down time left
       const { months, weeks, days, hours, minutes, seconds } = breakdownTime(millisLeft);
 
       document.getElementById("time-left").innerHTML =
