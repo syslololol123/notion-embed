@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Countdown Test</title>
+  <title>Countdown</title>
   <style>
     body {
       font-family: sans-serif;
       background-color: #222;
       color: #fff;
       padding: 20px;
-      max-width: 300px;
+      max-width: 350px;
     }
     #progress-container {
       background: #444;
       border-radius: 5px;
       height: 20px;
       width: 100%;
-      margin-top: 5px;
+      margin-top: 8px;
       overflow: hidden;
     }
     #progress-bar {
@@ -24,39 +24,70 @@
       height: 100%;
       width: 0%;
       border-radius: 5px;
+      transition: width 0.5s ease;
     }
   </style>
 </head>
 <body>
 
-  <div id="time-left"></div>
+  <div id="time-left" style="font-size: 1rem; line-height: 1.4;"></div>
+
   <div id="progress-container">
     <div id="progress-bar"></div>
   </div>
-  <div id="progress-text" style="margin-top: 5px;"></div>
+
+  <div id="progress-text" style="margin-top: 8px; font-size: 0.95rem;"></div>
 
   <script>
-    // Fixed start and end times
-    const startTime = new Date("2025-11-25T08:52:00-05:00"); // 8:52 AM EST
-    const endTime   = new Date("2025-11-25T09:30:00-05:00"); // 9:30 AM EST
+    // FIXED TIMESTAMPS IN EASTERN TIME
+    const startTime = new Date("2025-11-25T09:10:00-05:00");
+    const endTime   = new Date("2025-11-25T09:40:00-05:00");
+
+    function breakdownTime(ms) {
+      let seconds = Math.floor(ms / 1000);
+
+      const months = Math.floor(seconds / (30 * 24 * 3600)); // approx months
+      seconds -= months * 30 * 24 * 3600;
+
+      const weeks = Math.floor(seconds / (7 * 24 * 3600));
+      seconds -= weeks * 7 * 24 * 3600;
+
+      const days = Math.floor(seconds / (24 * 3600));
+      seconds -= days * 24 * 3600;
+
+      const hours = Math.floor(seconds / 3600);
+      seconds -= hours * 3600;
+
+      const minutes = Math.floor(seconds / 60);
+      seconds -= minutes * 60;
+
+      return { months, weeks, days, hours, minutes, seconds };
+    }
 
     function updateProgress() {
       const now = new Date();
+
       const totalMillis = endTime - startTime;
       const elapsedMillis = now - startTime;
-      const millisLeft = endTime - now;
+      const millisLeft = Math.max(endTime - now, 0); // prevent negatives
 
-      // Clamp values so we don't go negative
+      // % filled
       const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
-      const secondsLeft = Math.ceil(millisLeft / 1000);
 
-      document.getElementById("time-left").innerText = `${secondsLeft} Seconds Left`;
-      document.getElementById("progress-text").innerText = `${progressPercent.toFixed(1)}% Complete`;
+      // Break down time left
+      const { months, weeks, days, hours, minutes, seconds } = breakdownTime(millisLeft);
+
+      document.getElementById("time-left").innerHTML =
+        `Months: ${months}, Weeks: ${weeks}, Days: ${days}, ` +
+        `Hours: ${hours}, Minutes: ${minutes}, Seconds: ${seconds}`;
+
       document.getElementById("progress-bar").style.width = `${progressPercent}%`;
+      document.getElementById("progress-text").innerText =
+        `${progressPercent.toFixed(2)}% Complete`;
     }
 
-    updateProgress(); // run immediately
-    setInterval(updateProgress, 1000); // update every second
+    updateProgress();
+    setInterval(updateProgress, 1000);
   </script>
 
 </body>
