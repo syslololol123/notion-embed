@@ -1,19 +1,59 @@
-<script>
-  const startDate = new Date(); // start now
-  const endDate = new Date(startDate.getTime() + 60*1000); // 60 seconds from now for testing
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>1-Year Countdown</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #222;
+      color: #fff;
+      padding: 20px;
+      max-width: 300px;
+    }
+    #progress-container {
+      background: #444;
+      border-radius: 5px;
+      height: 20px;
+      width: 100%;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    #progress-bar {
+      background: #0f0;
+      height: 100%;
+      width: 0%;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
 
-  function updateProgress() {
-    const now = new Date();
-    const totalSeconds = (endDate - startDate) / 1000;
-    const secondsPassed = (now - startDate) / 1000;
-    const secondsLeft = Math.ceil(totalSeconds - secondsPassed);
-    const progressPercent = Math.floor((secondsPassed / totalSeconds) * 100);
+  <div id="days-left"></div>
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+  <div id="progress-text" style="margin-top: 5px;"></div>
 
-    document.getElementById("days-left").innerText = `${secondsLeft} Seconds Left`;
-    document.getElementById("progress-text").innerText = `${progressPercent}% Complete`;
-    document.getElementById("progress-bar").style.width = `${progressPercent}%`;
-  }
+  <script>
+    const startDate = new Date(); // start now
+    const endDate = new Date(startDate.getTime() + 60*1000); // 60 seconds from now for testing
+  
+    function updateProgress() {
+      const now = new Date();
+      const totalSeconds = (endDate - startDate) / 1000;
+      const secondsPassed = (now - startDate) / 1000;
+      const secondsLeft = Math.ceil(totalSeconds - secondsPasseda);
+      const progressPercent = Math.floor((secondsPassed / totalSeconds) * 100);
+  
+      document.getElementById("days-left").innerText = `${secondsLeft} Seconds Left`;
+      document.getElementById("progress-text").innerText = `${progressPercent}% Complete`;
+      document.getElementById("progress-bar").style.width = `${progressPercent}%`;
+    }
+  
+    updateProgress();
+    setInterval(updateProgress, 1000); // update every second
+  </script>
 
-  updateProgress();
-  setInterval(updateProgress, 1000); // update every second
-</script>
+</body>
+</html>
