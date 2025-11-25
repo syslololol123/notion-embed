@@ -40,32 +40,55 @@
 
   <script>
     // FIXED START + END (EASTERN TIME)
-    const startTime = new Date("2025-11-24T00:00:00-05:00");
+    const startTime = new Date("2025-11-25T00:00:00-05:00");
     const endTime   = new Date("2026-08-03T00:00:00-05:00");
 
-    // safely add months preserving (or clamping) the day-of-month
+    // Helpers
+    function startOfDay(d) {
+      const r = new Date(d);
+      r.setHours(0,0,0,0);
+      return r;
+    }
+
+    function addDays(d, n) {
+      return new Date(d.getTime() + n * 24 * 3600 * 1000);
+    }
+
+    // Safely add months preserving/clamping day-of-month
     function addMonthsSafe(date, monthsToAdd) {
       const d = new Date(date.getTime());
       const day = d.getDate();
-
-      // move to first of month to avoid overflow issues, then shift month
       d.setDate(1);
       d.setMonth(d.getMonth() + monthsToAdd);
-
-      // get last day of target month
       const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-
-      // set to min(original day, lastDay)
       d.setDate(Math.min(day, lastDay));
       return d;
     }
 
-    function calendarBreakdown(now, end) {
-      if (now >= end) {
-        return { months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
-      }
+    // Next weekday start (weekday: 1=Monday ... 0=Sunday)
+    function nextWeekdayStart(date, weekday) {
+      const d = startOfDay(date);
+      let offset = (weekday - d.getDay() + 7) % 7;
+      // if today is the weekday, return today (start)
+      // offset==0 returns same day
+      return addDays(d, offset);
+    }
 
-      // Step forward month-by-month safely
+    // Previous weekday start (<= date) - returns the most recent start-of-day that has that weekday
+    function prevWeekdayStart(date, weekday) {
+      const d = startOfDay(date);
+      let offset = (d.getDay() - weekday + 7) % 7;
+      return addDays(d, -offset);
+    }
+
+    // MAIN: Method 1 calendar breakdown:
+    // 1) count full calendar months from now (safe step)
+    // 2) after removing months, count full Monday->Sunday weeks fully contained in remainder
+    // 3) remaining days/hours/min/sec after those weeks
+    function calendarBreakdownMethod1(now, end) {
+      if (now >= end) return { months:0, weeks:0, days:0, hours:0, minutes:0, seconds:0 };
+
+      // STEP A: step forward months safely
       let temp = new Date(now);
       let months = 0;
       while (true) {
@@ -75,17 +98,51 @@
         months++;
       }
 
-      // Remaining ms after removing full months
-      let diffMs = end - temp;
+      // Now temp is "now" + months (clamped by day-of-month),
+      // remaining window is [temp, end)
 
-      const weekMs   = 1000 * 60 * 60 * 24 * 7;
+      // STEP B: find first Monday start >= temp
+      const MONDAY = 1; // JS: 0=Sun,1=Mon...
+      const firstMondayStart = nextWeekdayStart(temp, MONDAY);
+
+      // STEP C: find the latest Monday start such that that week's end (start+7d) <= end
+      // Start from the Monday on or before end-1ms, then reduce if its week extends past end.
+      // Use prevWeekdayStart on (end - 1ms)
+      const justBeforeEnd = new Date(end.getTime() - 1);
+      let candidateMonday = prevWeekdayStart(justBeforeEnd, MONDAY);
+
+      // if candidateMonday + 7 days > end, move back by whole weeks until it fits
+      const weekMs = 1000 * 60 * 60 * 24 * 7;
+      while (candidateMonday.getTime() + weekMs > end.getTime()) {
+        candidateMonday = addDays(candidateMonday, -7);
+      }
+
+      // STEP D: compute how many full Mondays (weeks) from firstMondayStart to candidateMonday
+      let weeks = 0;
+      if (firstMondayStart <= candidateMonday) {
+        weeks = Math.floor((candidateMonday.getTime() - firstMondayStart.getTime()) / weekMs) + 1;
+      } else {
+        weeks = 0;
+      }
+
+      // STEP E: compute remainder start after months + full weeks
+      let remainderStart = new Date(temp);
+      if (weeks > 0) {
+        remainderStart = new Date(firstMondayStart.getTime() + weeks * weekMs);
+      }
+
+      if (remainderStart > end) remainderStart = new Date(end.getTime()); // safe clamp
+
+      // STEP F: compute remaining days/hours/min/sec from remainderStart to end
+      let diffMs = end.getTime() - remainderStart.getTime();
+      if (diffMs < 0) diffMs = 0;
+
       const dayMs    = 1000 * 60 * 60 * 24;
       const hourMs   = 1000 * 60 * 60;
       const minuteMs = 1000 * 60;
 
-      const weeks   = Math.floor(diffMs / weekMs);   diffMs -= weeks * weekMs;
-      const days    = Math.floor(diffMs / dayMs);    diffMs -= days * dayMs;
-      const hours   = Math.floor(diffMs / hourMs);   diffMs -= hours * hourMs;
+      const days = Math.floor(diffMs / dayMs); diffMs -= days * dayMs;
+      const hours = Math.floor(diffMs / hourMs); diffMs -= hours * hourMs;
       const minutes = Math.floor(diffMs / minuteMs); diffMs -= minutes * minuteMs;
       const seconds = Math.floor(diffMs / 1000);
 
@@ -95,12 +152,12 @@
     function updateProgress() {
       const now = new Date();
 
-      // Progress calculations (based on whole timeline)
-      const totalMillis = endTime - startTime;
-      const elapsedMillis = now - startTime;
+      // Progress calculations (overall)
+      const totalMillis = endTime.getTime() - startTime.getTime();
+      const elapsedMillis = now.getTime() - startTime.getTime();
       const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
 
-      const t = calendarBreakdown(now, endTime);
+      const t = calendarBreakdownMethod1(now, endTime);
 
       document.getElementById("time-left").innerHTML =
         `Months: ${t.months}, Weeks: ${t.weeks}, Days: ${t.days}, ` +
