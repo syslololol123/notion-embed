@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>1-Year Countdown</title>
+  <title>Countdown Test</title>
   <style>
     body {
       font-family: sans-serif;
@@ -29,29 +29,33 @@
 </head>
 <body>
 
-  <div id="days-left"></div>
+  <div id="time-left"></div>
   <div id="progress-container">
     <div id="progress-bar"></div>
   </div>
   <div id="progress-text" style="margin-top: 5px;"></div>
 
   <script>
-    const startDate = new Date(); // start now
-    const endDate = new Date(startDate.getTime() + 60*1000); // 60 seconds from now for testing
-  
+    // Fixed start and end times
+    const startTime = new Date("2025-11-25T08:52:00-05:00"); // 8:52 AM EST
+    const endTime   = new Date("2025-11-25T09:30:00-05:00"); // 9:30 AM EST
+
     function updateProgress() {
       const now = new Date();
-      const totalSeconds = (endDate - startDate) / 1000;
-      const secondsPassed = (now - startDate) / 1000;
-      const secondsLeft = Math.ceil(totalSeconds - secondsPassed);
-      const progressPercent = Math.floor((secondsPassed / totalSeconds) * 100);
-  
-      document.getElementById("days-left").innerText = `${secondsLeft} Seconds Left`;
-      document.getElementById("progress-text").innerText = `${progressPercent}% Complete`;
+      const totalMillis = endTime - startTime;
+      const elapsedMillis = now - startTime;
+      const millisLeft = endTime - now;
+
+      // Clamp values so we don't go negative
+      const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
+      const secondsLeft = Math.ceil(millisLeft / 1000);
+
+      document.getElementById("time-left").innerText = `${secondsLeft} Seconds Left`;
+      document.getElementById("progress-text").innerText = `${progressPercent.toFixed(1)}% Complete`;
       document.getElementById("progress-bar").style.width = `${progressPercent}%`;
     }
-  
-    updateProgress();
+
+    updateProgress(); // run immediately
     setInterval(updateProgress, 1000); // update every second
   </script>
 
