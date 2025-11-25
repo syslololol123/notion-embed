@@ -43,7 +43,7 @@
       const now = new Date();
       const totalSeconds = (endDate - startDate) / 1000;
       const secondsPassed = (now - startDate) / 1000;
-      const secondsLeft = Math.ceil(totalSeconds - secondsPasseda);
+      const secondsLeft = Math.ceil(totalSeconds - secondsPassed);
       const progressPercent = Math.floor((secondsPassed / totalSeconds) * 100);
   
       document.getElementById("days-left").innerText = `${secondsLeft} Seconds Left`;
