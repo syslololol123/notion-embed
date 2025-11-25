@@ -116,8 +116,9 @@ function updateCountdown() {
   document.getElementById('minutes').textContent = minutes;
   document.getElementById('seconds').textContent = seconds;
 
-  const totalMs = endTime - startTime;
-  const elapsedMs = now - startTime;
+  // Fix: define elapsedMillis and totalMillis
+  const totalMillis = endTime.getTime() - startTime.getTime();
+  const elapsedMillis = now.getTime() - startTime.getTime();
   const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
 
   document.getElementById("progress-bar").style.width = `${progressPercent}%`;
@@ -127,6 +128,7 @@ function updateCountdown() {
 updateCountdown();
 setInterval(updateCountdown, 1000);
 </script>
+
 
 </body>
 </html>
