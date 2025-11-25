@@ -39,81 +39,69 @@
   <div id="progress-text" style="margin-top: 8px; font-size: 0.95rem;"></div>
 
   <script>
-    // FIXED START + END (EASTERN TIME)
     const startTime = new Date("2025-11-25T00:00:00-05:00");
     const endTime   = new Date("2026-08-03T00:00:00-05:00");
-
-    // ACCURATE MONTH → WEEK → DAY BREAKDOWN
+  
     function calendarBreakdown(now, end) {
       if (now >= end) {
         return { months: 0, weeks: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
       }
-
-      // ---- MONTHS ----
-      let months =
-        (end.getFullYear() - now.getFullYear()) * 12 +
-        (end.getMonth() - now.getMonth());
-
-      // Adjust if the day of month hasn't been reached yet
-      const temp = new Date(now);
-      temp.setMonth(now.getMonth() + months);
-      if (temp > end) {
-        months--;
-        temp.setMonth(now.getMonth() + months);
+  
+      let temp = new Date(now);
+      let months = 0;
+  
+      // Step forward month-by-month safely
+      while (true) {
+        let next = new Date(temp);
+        next.setMonth(temp.getMonth() + 1);
+  
+        // If next month exceeds the end date, stop.
+        if (next > end) break;
+  
+        temp = next;
+        months++;
       }
-
-      // Remaining time after removing full months
+  
+      // Remaining ms after subtracting full months
       let diffMs = end - temp;
-
-      // ---- WEEKS ----
-      const weekMs = 1000 * 60 * 60 * 24 * 7;
-      const weeks = Math.floor(diffMs / weekMs);
-      diffMs -= weeks * weekMs;
-
-      // ---- DAYS ----
-      const dayMs = 1000 * 60 * 60 * 24;
-      const days = Math.floor(diffMs / dayMs);
-      diffMs -= days * dayMs;
-
-      // ---- HOURS ----
-      const hourMs = 1000 * 60 * 60;
-      const hours = Math.floor(diffMs / hourMs);
-      diffMs -= hours * hourMs;
-
-      // ---- MINUTES ----
+  
+      const weekMs   = 1000 * 60 * 60 * 24 * 7;
+      const dayMs    = 1000 * 60 * 60 * 24;
+      const hourMs   = 1000 * 60 * 60;
       const minuteMs = 1000 * 60;
-      const minutes = Math.floor(diffMs / minuteMs);
-      diffMs -= minutes * minuteMs;
-
-      // ---- SECONDS ----
+  
+      const weeks   = Math.floor(diffMs / weekMs);   diffMs -= weeks * weekMs;
+      const days    = Math.floor(diffMs / dayMs);    diffMs -= days * dayMs;
+      const hours   = Math.floor(diffMs / hourMs);   diffMs -= hours * hourMs;
+      const minutes = Math.floor(diffMs / minuteMs); diffMs -= minutes * minuteMs;
       const seconds = Math.floor(diffMs / 1000);
-
+  
       return { months, weeks, days, hours, minutes, seconds };
     }
-
+  
     function updateProgress() {
       const now = new Date();
-
-      // Progress calculations
+  
       const totalMillis = endTime - startTime;
       const elapsedMillis = now - startTime;
-      const progressPercent = Math.min(Math.max(elapsedMillis / totalMillis * 100, 0), 100);
-
-      // Accurate calendar time left
+  
+      const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
+  
       const t = calendarBreakdown(now, endTime);
-
+  
       document.getElementById("time-left").innerHTML =
         `Months: ${t.months}, Weeks: ${t.weeks}, Days: ${t.days}, ` +
         `Hours: ${t.hours}, Minutes: ${t.minutes}, Seconds: ${t.seconds}`;
-
+  
       document.getElementById("progress-bar").style.width = `${progressPercent}%`;
       document.getElementById("progress-text").innerText =
         `${progressPercent.toFixed(2)}% Complete`;
     }
-
+  
     updateProgress();
     setInterval(updateProgress, 1000);
   </script>
+
 
 </body>
 </html>
