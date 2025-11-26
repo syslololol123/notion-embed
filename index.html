@@ -7,57 +7,63 @@
   body {
     font-family: Arial, sans-serif;
     background: transparent;
-    color: white; /* All text white */
+    color: white;
     text-align: center;
     padding: 20px;
   }
-  
-  #countdown {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    color: white;
+
+  /* TIME DISPLAY WRAPPER */
+  #time-left {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 25px;
   }
-  
-  .time-box {
-    display: inline-block;
-    margin: 0 10px;
+
+  /* EACH TIME SEGMENT */
+  .time-segment {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  
-  .time-box span {
+
+  .time-value {
     font-size: 2.5rem;
     font-weight: bold;
-    color: white; /* Numbers white */
+    color: white;
   }
-  
+
+  .time-label {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-top: 5px;
+  }
+
   /* PROGRESS BAR */
   #progress-container {
     width: 80%;
     height: 25px;
-    background-color: rgba(255,255,255,0.2); /* Light white background */
+    background-color: rgba(255,255,255,0.2);
     border-radius: 12px;
     margin: 20px auto;
-    position: relative;
     overflow: hidden;
-  
-    /* Removed the dark shadow completely */
     box-shadow: none;
   }
-  
+
   #progress-bar {
     height: 100%;
     width: 0%;
-    background-color: white; /* Progress white */
+    background-color: white;
     border-radius: 12px;
-    transition: width 0.3s ease;
+    transition: width 0.4s ease;
   }
-  
+
   #progress-text {
     margin-top: 10px;
     font-size: 1.2rem;
-    color: white; /* Percentage text white */
+    color: white;
   }
 </style>
-
 </head>
 <body>
 
@@ -66,14 +72,17 @@
     <div id="days" class="time-value">0</div>
     <div class="time-label">Days</div>
   </div>
+
   <div class="time-segment">
     <div id="hours" class="time-value">0</div>
     <div class="time-label">Hours</div>
   </div>
+
   <div class="time-segment">
     <div id="minutes" class="time-value">0</div>
     <div class="time-label">Minutes</div>
   </div>
+
   <div class="time-segment">
     <div id="seconds" class="time-value">0</div>
     <div class="time-label">Seconds</div>
@@ -109,19 +118,19 @@ function updateCountdown() {
   document.getElementById('minutes').textContent = minutes;
   document.getElementById('seconds').textContent = seconds;
 
-  // Fix: define elapsedMillis and totalMillis
+  // PROGRESS BAR
   const totalMillis = endTime.getTime() - startTime.getTime();
   const elapsedMillis = now.getTime() - startTime.getTime();
   const progressPercent = Math.min(Math.max((elapsedMillis / totalMillis) * 100, 0), 100);
 
   document.getElementById("progress-bar").style.width = `${progressPercent}%`;
-  document.getElementById("progress-text").textContent = `${progressPercent.toFixed(2)}% Complete`;
+  document.getElementById("progress-text").textContent =
+    `${progressPercent.toFixed(2)}% Complete`;
 }
 
 updateCountdown();
 setInterval(updateCountdown, 1000);
 </script>
-
 
 </body>
 </html>
