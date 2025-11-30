@@ -12,6 +12,13 @@
     padding: 20px;
   }
 
+  #today-info {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    opacity: 0.9;
+  }
+
+  
   /* TIME DISPLAY WRAPPER */
   #time-left {
     display: flex;
@@ -67,6 +74,8 @@
 </head>
 <body>
 
+<div id="today-info"></div>
+  
 <div id="time-left">
   <div class="time-segment">
     <div id="days" class="time-value">0</div>
@@ -97,6 +106,14 @@
 <script>
 const startTime = new Date("2025-11-25T00:00:00-05:00");
 const endTime   = new Date("2026-08-03T00:00:00-05:00");
+
+function updateTodayInfo() {
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formatted = now.toLocaleDateString(undefined, options);
+
+  document.getElementById("today-info").textContent = formatted;
+}
 
 function updateCountdown() {
   const now = new Date();
@@ -129,7 +146,11 @@ function updateCountdown() {
 }
 
 updateCountdown();
-setInterval(updateCountdown, 1000);
+updateTodayInfo();
+setInterval(() => {
+  updateCountdown();
+  updateTodayInfo();
+}, 1000);
 </script>
 
 </body>
